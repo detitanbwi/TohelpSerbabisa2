@@ -246,12 +246,14 @@
             let markerAkhir = null;
             let directionsService;
             let directionsRenderer;
+            let distanceMatrixService;
 
             initMap();
 
             // Initialize Google Maps
             function initMap() {
                 directionsService = new google.maps.DirectionsService();
+                distanceMatrixService = new google.maps.DistanceMatrixService();
                 directionsRenderer = new google.maps.DirectionsRenderer({
                     suppressMarkers: true,
                     polylineOptions: {
@@ -290,17 +292,58 @@
                 setupAutocomplete('lokasi_akhir', false);
             }
 
-            // Helper function: Calculate distance between two points using Haversine formula
-            function calculateDistance(lat1, lng1, lat2, lng2) {
-                const R = 6371; // Earth's radius in km
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLng = (lng2 - lng1) * Math.PI / 180;
-                const a =
-                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return R * c;
+            // Helper function: Calculate distance between two points using Google Distance Matrix API
+            // Optimized for car (taxi) travel - uses DRIVING mode with highway access and traffic optimization
+            function calculateDistanceMatrix(origins, destinations) {
+                return new Promise((resolve, reject) => {
+                    // travelMode "google.maps.TravelMode.DRIVING", or "google.maps.TravelMode.TWO_WHEELER"
+                    // drivingOptions.trafficModel "google.maps.TrafficModel.BEST_GUESS", or "google.maps.TrafficModel.OPTIMISTIC"
+                    const request = {
+                        origins: origins,
+                        destinations: destinations,
+                        travelMode: google.maps.TravelMode.DRIVING, // Car travel mode
+                        unitSystem: google.maps.UnitSystem.METRIC,
+                        avoidHighways: false, // Cars can efficiently use highways
+                        avoidTolls: false,
+                        region: 'ID', // Indonesia region for better localization
+                        language: 'id', // Indonesian language
+                        drivingOptions: {
+                            departureTime: new Date(), // Current time for real-time traffic
+                            trafficModel: google.maps.TrafficModel.BEST_GUESS // Best traffic estimation
+                        }
+                    };
+
+                    distanceMatrixService.getDistanceMatrix(request).then((response) => {
+                        if (response.rows && response.rows.length > 0) {
+                            const results = [];
+                            for (let i = 0; i < response.rows.length; i++) {
+                                const row = response.rows[i];
+                                const rowResults = [];
+                                for (let j = 0; j < row.elements.length; j++) {
+                                    const element = row.elements[j];
+                                    if (element.status === 'OK') {
+                                        rowResults.push({
+                                            distance: element.distance.value /
+                                                1000, // Convert to km
+                                            duration: element.duration.value /
+                                                60, // Convert to minutes
+                                            distanceText: element.distance.text,
+                                            durationText: element.duration.text
+                                        });
+                                    } else {
+                                        rowResults.push(null);
+                                    }
+                                }
+                                results.push(rowResults);
+                            }
+                            resolve(results);
+                        } else {
+                            reject('No results from Distance Matrix API');
+                        }
+                    }).catch((error) => {
+                        reject(error);
+                    });
+                });
             }
 
             // Calculate total price with the new tiered pricing model for cars
@@ -349,7 +392,15 @@
                 const input = document.getElementById(inputId);
                 const autocomplete = new google.maps.places.Autocomplete(input, {
                     types: ['geocode', 'establishment'],
-                    fields: ['geometry', 'name', 'formatted_address']
+                    fields: ['geometry', 'name', 'formatted_address', 'place_id'],
+                    componentRestrictions: {
+                        country: 'id'
+                    }, // Restrict to Indonesia
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(BASECAMP_LAT - 0.1, BASECAMP_LNG - 0.1), // SW bounds
+                        new google.maps.LatLng(BASECAMP_LAT + 0.1, BASECAMP_LNG + 0.1) // NE bounds
+                    ),
+                    strictBounds: false // Allow results outside bounds but prioritize within bounds
                 });
 
                 autocomplete.addListener('place_changed', function() {
@@ -385,132 +436,171 @@
 
                 const startPos = markerAwal.getPosition();
                 const endPos = markerAkhir.getPosition();
-
-                // Calculate distance from basecamp to pickup point
                 const basecampPos = new google.maps.LatLng(BASECAMP_LAT, BASECAMP_LNG);
-                const basecampToPickupDistance = calculateDistance(
-                    BASECAMP_LAT,
-                    BASECAMP_LNG,
-                    startPos.lat(),
-                    startPos.lng()
-                ).toFixed(2);
 
-                // Calculate distance from basecamp to destination point
-                const basecampToDestinationDistance = calculateDistance(
-                    BASECAMP_LAT,
-                    BASECAMP_LNG,
-                    endPos.lat(),
-                    endPos.lng()
-                ).toFixed(2);
+                // Calculate distances using Distance Matrix API
+                const origins = [basecampPos];
+                const destinations = [startPos, endPos];
 
-                const request = {
-                    origin: startPos,
-                    destination: endPos,
-                    travelMode: 'DRIVING'
-                };
+                calculateDistanceMatrix(origins, destinations).then((distanceResults) => {
+                    const basecampToPickupDistance = distanceResults[0][0] ? distanceResults[0][0].distance
+                        .toFixed(2) : '0';
+                    const basecampToDestinationDistance = distanceResults[0][1] ? distanceResults[0][1]
+                        .distance.toFixed(2) : '0';
 
-                directionsService.route(request, function(result, status) {
-                    if (status === 'OK') {
-                        directionsRenderer.setDirections(result);
+                    const request = {
+                        origin: startPos,
+                        destination: endPos,
+                        travelMode: google.maps.TravelMode.DRIVING, // Car travel mode
+                        avoidHighways: false, // Cars can efficiently use highways
+                        avoidTolls: false,
+                        region: 'ID', // Indonesia region for better localization
+                        language: 'id', // Indonesian language
+                        provideRouteAlternatives: true, // Get alternative routes for better options
+                        optimizeWaypoints: true, // Optimize route ordering
+                        drivingOptions: {
+                            departureTime: new Date(), // Current time for real-time traffic
+                            trafficModel: google.maps.TrafficModel.BEST_GUESS // Best traffic estimation
+                        }
+                    };
 
-                        const route = result.routes[0];
-                        const routeDistance = (route.legs[0].distance.value / 1000).toFixed(2);
-                        const duration = Math.round(route.legs[0].duration.value / 60);
+                    directionsService.route(request, function(result, status) {
+                        if (status === 'OK') {
+                            directionsRenderer.setDirections(result);
 
-                        // Calculate return trip distance (destination to pickup) in background
-                        const returnRequest = {
-                            origin: endPos,
-                            destination: startPos,
-                            travelMode: 'DRIVING'
-                        };
+                            const route = result.routes[0];
+                            const routeDistance = (route.legs[0].distance.value / 1000).toFixed(2);
+                            const duration = Math.round(route.legs[0].duration.value / 60);
 
-                        directionsService.route(returnRequest, function(returnResult, returnStatus) {
-                            let returnDistance = routeDistance; // fallback to same distance
-                            
-                            if (returnStatus === 'OK') {
-                                returnDistance = (returnResult.routes[0].legs[0].distance.value / 1000).toFixed(2);
-                            }
+                            // Calculate return trip distance (destination to pickup) in background
+                            const returnRequest = {
+                                origin: endPos,
+                                destination: startPos,
+                                travelMode: google.maps.TravelMode.DRIVING, // Car travel mode
+                                avoidHighways: false, // Cars can efficiently use highways
+                                avoidTolls: false,
+                                region: 'ID', // Indonesia region for better localization
+                                language: 'id', // Indonesian language
+                                provideRouteAlternatives: true, // Get alternative routes for better options
+                                optimizeWaypoints: true, // Optimize route ordering
+                                drivingOptions: {
+                                    departureTime: new Date(Date.now() + (30 * 60 *
+                                        1000)), // Estimated departure time (30 min from now)
+                                    trafficModel: google.maps.TrafficModel
+                                        .BEST_GUESS // Best traffic estimation
+                                }
+                            };
 
-                            // Get rounded distance for display
-                            const roundedDistance = Math.ceil(parseFloat(routeDistance));
+                            directionsService.route(returnRequest, function(returnResult,
+                                returnStatus) {
+                                let returnDistance =
+                                    routeDistance; // fallback to same distance
 
-                            // Calculate price using tiered pricing
-                            let totalPrice = calculatePrice(parseFloat(routeDistance));
+                                if (returnStatus === 'OK') {
+                                    returnDistance = (returnResult.routes[0].legs[0]
+                                        .distance.value / 1000).toFixed(2);
+                                }
 
-                            // Determine which rate is applied based on distance
-                            let appliedRate;
-                            if (roundedDistance <= TIER_1_MAX) {
-                                appliedRate = TIER_1_RATE;
-                            } else if (roundedDistance <= TIER_2_MAX) {
-                                appliedRate = TIER_2_RATE;
-                            } else {
-                                appliedRate = TIER_3_RATE;
-                            }
+                                // Get rounded distance for display
+                                const roundedDistance = Math.ceil(parseFloat(
+                                    routeDistance));
 
-                            // Voucher discount info for display (calculation will be done by backend)
-                            let discountInfo = '';
-                            if (voucherDiscount > 0) {
-                                discountInfo = `<br>Diskon Voucher: ${voucherDiscount}%`;
-                            }
+                                // Calculate price using tiered pricing
+                                let totalPrice = calculatePrice(parseFloat(routeDistance));
 
-                            // Send both distances to the server including calculated return distance
-                            $.ajax({
-                                url: `{{ route('taxi.show-pricing') }}`,
-                                method: 'POST',
-                                data: {
-                                    _token: '{{ csrf_token() }}',
-                                    jarakBaseCampKeTitikJemput: Math.ceil(basecampToPickupDistance),
-                                    jarakTitikJemputKeTitikTujuan: Math.ceil(routeDistance),
-                                    jarakBaseCampKeTitikTujuan: Math.ceil(basecampToDestinationDistance),
-                                    jarakTitikTujuanKeTitikJemput: Math.ceil(returnDistance),
-                                    discount: appliedVoucherCode || null,
-                                },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    // Backend already calculated final price including discount
-                                    let finalPrice = response.harga;
-                                    
-                                    // Format price with thousand separators for Rupiah
-                                    const formattedPrice = new Intl.NumberFormat('id-ID', {
-                                        style: 'currency',
-                                        currency: 'IDR',
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0
-                                    }).format(finalPrice);
-                                    // Update the route info with the response data
-                                    $('#routeInfo').html(
-                                        `Jarak Basecamp ke Titik Jemput: ${basecampToPickupDistance} km<br>
+                                // Determine which rate is applied based on distance
+                                let appliedRate;
+                                if (roundedDistance <= TIER_1_MAX) {
+                                    appliedRate = TIER_1_RATE;
+                                } else if (roundedDistance <= TIER_2_MAX) {
+                                    appliedRate = TIER_2_RATE;
+                                } else {
+                                    appliedRate = TIER_3_RATE;
+                                }
+
+                                // Voucher discount info for display (calculation will be done by backend)
+                                let discountInfo = '';
+                                if (voucherDiscount > 0) {
+                                    discountInfo =
+                                        `<br>Diskon Voucher: ${voucherDiscount}%`;
+                                }
+
+                                // Send both distances to the server including calculated return distance
+                                $.ajax({
+                                    url: `{{ route('taxi.show-pricing') }}`,
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        jarakBaseCampKeTitikJemput: Math.ceil(
+                                            basecampToPickupDistance),
+                                        jarakTitikJemputKeTitikTujuan: Math.ceil(
+                                            routeDistance),
+                                        jarakBaseCampKeTitikTujuan: Math.ceil(
+                                            basecampToDestinationDistance),
+                                        jarakTitikTujuanKeTitikJemput: Math.ceil(
+                                            returnDistance),
+                                        discount: appliedVoucherCode || null,
+                                    },
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            // Backend already calculated final price including discount
+                                            let finalPrice = response.harga;
+
+                                            // Format price with thousand separators for Rupiah
+                                            const formattedPrice = new Intl
+                                                .NumberFormat('id-ID', {
+                                                    style: 'currency',
+                                                    currency: 'IDR',
+                                                    minimumFractionDigits: 0,
+                                                    maximumFractionDigits: 0
+                                                }).format(finalPrice);
+                                            // Update the route info with the response data
+                                            $('#routeInfo').html(
+                                                `Jarak Driver ke Titik Jemput: ${Math.ceil(
+                                            basecampToPickupDistance)} km<br>
                             Jarak Perjalanan: <span id="distance">${roundedDistance}</span> km<br>
                             Estimasi waktu: <span id="duration">${duration}</span> menit<br>
                             ${discountInfo}<br>
                             Harga Total: <h1 id="totalPrice" class="text-success">${formattedPrice}</h1>`
-                                    ).show();
-                                } else {
-                                    // Handle error response
-                                    $('#routeInfo').html(
-                                        `<div class="alert alert-danger">
+                                            ).show();
+                                        } else {
+                                            // Handle error response
+                                            $('#routeInfo').html(
+                                                `<div class="alert alert-danger">
                                 <strong>Error!</strong><br>
                                 Maaf, terjadi kesalahan, silahkan coba lagi.
                             </div>`
-                                    ).show();
-                                }
-                            },
-                            error: function(xhr) {
-                                let errorMessage = 'Terjadi kesalahan saat menghitung harga';
-                                if (xhr.responseJSON && xhr.responseJSON.message) {
-                                    errorMessage = xhr.responseJSON.message;
-                                }
+                                            ).show();
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        let errorMessage =
+                                            'Terjadi kesalahan saat menghitung harga';
+                                        if (xhr.responseJSON && xhr.responseJSON
+                                            .message) {
+                                            errorMessage = xhr.responseJSON
+                                                .message;
+                                        }
 
-                                $('#routeInfo').html(
-                                    `<div class="alert alert-danger">
+                                        $('#routeInfo').html(
+                                            `<div class="alert alert-danger">
                             <strong>Error!</strong><br>
                             ${errorMessage}
                         </div>`
-                                ).show();
-                            }
-                        });
-                        }); // Close return distance calculation callback
-                    }
+                                        ).show();
+                                    }
+                                });
+                            }); // Close return distance calculation callback
+                        }
+                    });
+                }).catch((error) => {
+                    console.error('Error calculating distances:', error);
+                    $('#routeInfo').html(
+                        `<div class="alert alert-danger">
+                            <strong>Error!</strong><br>
+                            Gagal menghitung jarak: ${error}
+                        </div>`
+                    ).show();
                 });
             }
 
@@ -630,7 +720,8 @@
                             results[0].geometry &&
                             results[0].geometry.location_type !== 'APPROXIMATE' &&
                             results[0].formatted_address &&
-                            !results[0].formatted_address.toLowerCase().includes('undefined')
+                            !results[0].formatted_address.toLowerCase().includes(
+                                'undefined')
                         );
                     });
                 });
@@ -641,16 +732,16 @@
                 return new Promise((resolve) => {
                     const geocoder = new google.maps.Geocoder();
                     geocoder.geocode({
-                        location: { 
-                            lat: parseFloat(lat), 
-                            lng: parseFloat(lng) 
+                        location: {
+                            lat: parseFloat(lat),
+                            lng: parseFloat(lng)
                         }
                     }, (results, status) => {
                         if (status === 'OK' && results[0]) {
                             // Get the address components
                             const addressComponents = results[0].address_components;
                             let city = '';
-                            
+
                             // Find the city component
                             for (const component of addressComponents) {
                                 if (component.types.includes('locality')) {
@@ -661,14 +752,14 @@
 
                             // Determine cabang based on city
                             let cabangId = null;
-                            switch(city) {
+                            switch (city) {
                                 case 'malang':
                                     cabangId = 1; // Assuming 1 is Malang's cabang ID
                                     break;
                                 case 'surabaya':
                                     cabangId = 2; // Assuming 2 is Surabaya's cabang ID
                                     break;
-                                // Add more cities as needed
+                                    // Add more cities as needed
                                 default:
                                     cabangId = 1; // Default to Malang or handle as needed
                             }
@@ -687,110 +778,148 @@
                 const lat_akhir = parseFloat($('#lat_akhir').val());
                 const lng_akhir = parseFloat($('#lng_akhir').val());
 
-                // Calculate basecamp to pickup distance
+                // Calculate basecamp distances using Distance Matrix API
                 const basecampPos = new google.maps.LatLng(BASECAMP_LAT, BASECAMP_LNG);
-                const basecampToPickupDistance = calculateDistance(
-                    BASECAMP_LAT,
-                    BASECAMP_LNG,
-                    lat_awal,
-                    lng_awal
-                ).toFixed(2);
+                const pickupPos = new google.maps.LatLng(lat_awal, lng_awal);
+                const destinationPos = new google.maps.LatLng(lat_akhir, lng_akhir);
 
-                // Calculate basecamp to destination distance
-                const basecampToDestinationDistance = calculateDistance(
-                    BASECAMP_LAT,
-                    BASECAMP_LNG,
-                    lat_akhir,
-                    lng_akhir
-                ).toFixed(2);
+                const origins = [basecampPos];
+                const destinations = [pickupPos, destinationPos];
 
-                // Validate both locations
-                const isStartValid = await validateLocation(lat_awal, lng_awal);
-                const isEndValid = await validateLocation(lat_akhir, lng_akhir);
+                calculateDistanceMatrix(origins, destinations).then(async (distanceResults) => {
+                    const basecampToPickupDistance = distanceResults[0][0] ?
+                        distanceResults[0][0].distance.toFixed(2) : '0';
+                    const basecampToDestinationDistance = distanceResults[0][1] ?
+                        distanceResults[0][1].distance.toFixed(2) : '0';
 
-                if (!isStartValid || !isEndValid) {
-                    alert('Lokasi tidak valid. Pastikan menggunakan lokasi tepat dari Google Maps.');
-                    return;
-                }
+                    // Validate both locations
+                    const isStartValid = await validateLocation(lat_awal, lng_awal);
+                    const isEndValid = await validateLocation(lat_akhir, lng_akhir);
 
-                // Determine cabang based on pickup location
-                const cabangId = await determineCabang(lat_awal, lng_awal);
-
-                // Calculate return distance for accurate pricing
-                const startPos = new google.maps.LatLng(lat_awal, lng_awal);
-                const endPos = new google.maps.LatLng(lat_akhir, lng_akhir);
-                
-                const returnRequest = {
-                    origin: endPos,
-                    destination: startPos,
-                    travelMode: 'DRIVING'
-                };
-
-                directionsService.route(returnRequest, function(returnResult, returnStatus) {
-                    let returnDistance = parseFloat($('#distance').text()); // fallback to forward distance
-                    
-                    if (returnStatus === 'OK') {
-                        returnDistance = (returnResult.routes[0].legs[0].distance.value / 1000).toFixed(2);
+                    if (!isStartValid || !isEndValid) {
+                        alert(
+                            'Lokasi tidak valid. Pastikan menggunakan lokasi tepat dari Google Maps.'
+                        );
+                        return;
                     }
 
-                    Swal.fire({
-                        title: "Apakah anda yakin?",
-                        text: "Apakah anda yakin ingin memesan jasa ini?",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Ya, pesan!",
-                        cancelButtonText: "Batal",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                                    $.ajax({
-                                        url: `{{ route('taxi.pesan') }}`,
-                                        method: 'POST',
-                                        data: {
-                                            _token: '{{ csrf_token() }}',
-                                            jarak: parseFloat($('#distance').text()),
-                                            jarakBaseCampKeTitikJemput: Math.ceil(basecampToPickupDistance),
-                                            jarakBaseCampKeTitikTujuan: Math.ceil(basecampToDestinationDistance),
-                                            jarakTitikTujuanKeTitikJemput: Math.ceil(returnDistance),
-                                            voucher: appliedVoucherCode,
-                                            titik_jemput: $('#lokasi_awal').val(),
-                                            titik_tujuan: $('#lokasi_akhir').val(),
-                                            cabang: cabangId
-                                        },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    // console.log($('#totalPrice').text());
+                    // Determine cabang based on pickup location
+                    const cabangId = await determineCabang(lat_awal, lng_awal);
 
-                                    Swal.fire({
-                                        title: 'Berhasil',
-                                        text: 'Pesanan berhasil dibuat, Anda akan diarahkan ke WhatsApp Admin',
-                                        icon: 'success'
-                                    }).then(() => {
-                                        const message =
-                                            `Hii, saya baru saja memesan To Help untuk meminta bantuan\n\n- Mobil\nID Order : ${response.order_id}\nTitik Penjemputan : ${$('#lokasi_awal').val()}\nTitik Pengantaran : ${$('#lokasi_akhir').val()}\nHarga : ${$('#totalPrice').text()}`;
-                                        window.open(
-                                            `https://api.whatsapp.com/send?phone=6285695908981&text=${encodeURIComponent(message)}`,
-                                            '_blank'
-                                        );
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: 'Gagal',
-                                        text: 'Pesanan gagal dibuat, silahkan coba lagi',
-                                        icon: 'error'
-                                    });
-                                }
-                            },
-                            error: function() {
-                                Swal.fire({
-                                    title: 'Gagal',
-                                    text: 'Pesanan gagal dibuat, silahkan coba lagi',
-                                    icon: 'error'
+                    // Calculate return distance for accurate pricing
+                    const startPos = new google.maps.LatLng(lat_awal, lng_awal);
+                    const endPos = new google.maps.LatLng(lat_akhir, lng_akhir);
+
+                    const returnRequest = {
+                        origin: endPos,
+                        destination: startPos,
+                        travelMode: google.maps.TravelMode.DRIVING, // Car travel mode
+                        avoidHighways: false, // Cars can efficiently use highways
+                        avoidTolls: false,
+                        region: 'ID', // Indonesia region for better localization
+                        language: 'id', // Indonesian language
+                        provideRouteAlternatives: true, // Get alternative routes for better options
+                        optimizeWaypoints: true, // Optimize route ordering
+                        drivingOptions: {
+                            departureTime: new Date(Date.now() + (30 * 60 *
+                                1000)), // Estimated departure time (30 min from now)
+                            trafficModel: google.maps.TrafficModel
+                                .BEST_GUESS // Best traffic estimation
+                        }
+                    };
+
+                    directionsService.route(returnRequest, function(returnResult,
+                        returnStatus) {
+                        let returnDistance = parseFloat($('#distance')
+                            .text()); // fallback to forward distance
+
+                        if (returnStatus === 'OK') {
+                            returnDistance = (returnResult.routes[0].legs[0]
+                                .distance.value / 1000).toFixed(2);
+                        }
+
+                        Swal.fire({
+                            title: "Apakah anda yakin?",
+                            text: "Apakah anda yakin ingin memesan jasa ini?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Ya, pesan!",
+                            cancelButtonText: "Batal",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: `{{ route('taxi.pesan') }}`,
+                                    method: 'POST',
+                                    data: {
+                                        _token: '{{ csrf_token() }}',
+                                        jarak: parseFloat($(
+                                                '#distance')
+                                            .text()),
+                                        jarakBaseCampKeTitikJemput: Math
+                                            .ceil(
+                                                basecampToPickupDistance
+                                            ),
+                                        jarakBaseCampKeTitikTujuan: Math
+                                            .ceil(
+                                                basecampToDestinationDistance
+                                            ),
+                                        jarakTitikTujuanKeTitikJemput: Math
+                                            .ceil(returnDistance),
+                                        voucher: appliedVoucherCode,
+                                        titik_jemput: $(
+                                                '#lokasi_awal')
+                                            .val(),
+                                        titik_tujuan: $(
+                                                '#lokasi_akhir')
+                                            .val(),
+                                        cabang: cabangId
+                                    },
+                                    success: function(response) {
+                                        if (response.status ===
+                                            'success') {
+                                            // console.log($('#totalPrice').text());
+
+                                            Swal.fire({
+                                                title: 'Berhasil',
+                                                text: 'Pesanan berhasil dibuat, Anda akan diarahkan ke WhatsApp Admin',
+                                                icon: 'success'
+                                            }).then(() => {
+                                                const
+                                                    message =
+                                                    `Hii, saya baru saja memesan To Help untuk meminta bantuan\n\n- Mobil\nID Order : ${response.order_id}\nTitik Penjemputan : ${$('#lokasi_awal').val()}\nTitik Pengantaran : ${$('#lokasi_akhir').val()}\nHarga : ${$('#totalPrice').text()}`;
+                                                window
+                                                    .open(
+                                                        `https://api.whatsapp.com/send?phone=6285695908981&text=${encodeURIComponent(message)}`,
+                                                        '_blank'
+                                                    );
+                                            });
+                                        } else {
+                                            Swal.fire({
+                                                title: 'Gagal',
+                                                text: 'Pesanan gagal dibuat, silahkan coba lagi',
+                                                icon: 'error'
+                                            });
+                                        }
+                                    },
+                                    error: function() {
+                                        Swal.fire({
+                                            title: 'Gagal',
+                                            text: 'Pesanan gagal dibuat, silahkan coba lagi',
+                                            icon: 'error'
+                                        });
+                                    }
                                 });
                             }
                         });
-                    }
+                    }); // Close return distance calculation callback
+                }).catch((error) => {
+                    console.error('Error calculating distances for order:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal menghitung jarak. Silahkan coba lagi.',
+                        icon: 'error'
+                    });
                 });
-                }); // Close return distance calculation callback
             });
 
             $('#reset-voucher').click(function() {
