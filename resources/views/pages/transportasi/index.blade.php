@@ -44,72 +44,92 @@
     <section id="billboard">
         <div class="row align-items-center g-0 bg-secondary">
             <div class="col-lg-6">
-                <div class="m-4 p-4 m-lg-5 p-lg-5">
+                <div class="m-lg-5 p-lg-5 m-4 p-4">
                     <h6 class="text-white"><span class="text-primary">Transportasi</span>(Ojek)</h6>
-                    <h2 class="display-4 fw-bold text-white my-4">Perjalanan Nyaman, Harga Bersahabat</h2>
-                    <a href="#quote" class="btn btn-light btn-bg btn-slide hover-slide-right mt-4">
+                    <h2 class="display-4 fw-bold my-4 text-white">Perjalanan Nyaman, Harga Bersahabat</h2>
+                    <a class="btn btn-light btn-bg btn-slide hover-slide-right mt-4" href="#quote">
                         <span>Silahkan Pesan</span>
                     </a>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="hero-image-container">
-                    <img src="{{ asset('images/hero-ojek.jpg') }}" alt="img" class="img-fluid hero-image">
+                    <img class="img-fluid hero-image" src="{{ asset('images/hero-ojek.jpg') }}" alt="img">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Map/Order Section -->
-    <section id="quote" class="padding-small">
+    <section class="padding-small" id="quote">
         <div class="container text-center">
             <h3 class="display-6 fw-semibold mb-4">Tentukan Lokasi</h3>
             <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
 
-            <button id="useMyLocation" class="btn btn-primary mb-3">
+            <button class="btn btn-primary mb-3" id="useMyLocation">
                 <i class="fas fa-location-arrow"></i> Gunakan Lokasi Saya
             </button>
 
-            <div id="routeInfo" class="alert alert-info mb-3" style="display: none;"></div>
+            <div class="alert alert-info mb-3" id="routeInfo" style="display: none;"></div>
 
             <form class="contact-form row mt-5" id="locationForm">
                 <div class="col-lg-6 col-md-12 col-sm-12 mb-4">
-                    <input type="text" name="lokasi_awal" id="lokasi_awal" placeholder="Mendapatkan lokasi Anda..."
-                        class="form-control w-100 ps-3 py-2 rounded-0" required disabled>
-                    <input type="hidden" id="lat_awal" name="lat_awal">
-                    <input type="hidden" id="lng_awal" name="lng_awal">
+                    <input class="form-control w-100 rounded-0 py-2 ps-3" id="lokasi_awal" name="lokasi_awal" type="text"
+                        placeholder="Mendapatkan lokasi Anda..." required disabled>
+                    <input id="lat_awal" name="lat_awal" type="hidden">
+                    <input id="lng_awal" name="lng_awal" type="hidden">
                 </div>
+
                 <div class="col-lg-6 col-md-12 col-sm-12 mb-4">
-                    <input type="text" name="lokasi_akhir" id="lokasi_akhir" placeholder="Masukkan Tujuan*"
-                        class="form-control w-100 ps-3 py-2 rounded-0" required disabled>
-                    <input type="hidden" id="lat_akhir" name="lat_akhir">
-                    <input type="hidden" id="lng_akhir" name="lng_akhir">
+                    <input class="form-control w-100 rounded-0 py-2 ps-3" id="lokasi_akhir" name="lokasi_akhir"
+                        type="text" placeholder="Masukkan Tujuan*" required disabled>
+                    <input id="lat_akhir" name="lat_akhir" type="hidden">
+                    <input id="lng_akhir" name="lng_akhir" type="hidden">
+                </div>
+
+                <!-- Payment method dropdown (tengahkan) -->
+                <div class="col-12 mb-3 max-w-20 text-center">
+                    <label class="form-label fw-semibold d-block mb-2" for="metode_pembayaran">Metode Pembayaran</label>
+                    <select class="form-select rounded-0 d-inline-block mx-auto py-2 ps-3" id="metode_pembayaran">
+                        <option value="Cash">Cash</option>
+                        <option value="Transfer">Transfer</option>
+                    </select>
                 </div>
             </form>
+
             <!-- Voucher Section -->
-            <div class="mt-4 mb-3">
+            <div class="mb-3 mt-4">
                 <div class="row justify-content-center">
                     <div class="col-lg-8 col-md-10">
                         <div class="input-group">
-                            <input type="text" id="kode-voucher" class="form-control ps-3 py-2 rounded-0"
-                                placeholder="Masukkan kode voucher" aria-label="Kode voucher">
-                            <button class="btn btn-primary" type="button" id="apply-voucher">
+                            <input class="form-control rounded-0 py-2 ps-3" id="kode-voucher" type="text"
+                                aria-label="Kode voucher" placeholder="Masukkan kode voucher">
+                            <button class="btn btn-primary" id="apply-voucher" type="button">
                                 <i class="fas fa-tag"></i> Apply Voucher
                             </button>
-                            <button class="btn btn-outline-secondary" type="button" id="reset-voucher"
+                            <button class="btn btn-outline-secondary" id="reset-voucher" type="button"
                                 style="display: none;">
                                 <i class="fas fa-times"></i> Reset
                             </button>
                         </div>
-                        <div id="voucher-info" class="mt-2 text-start" style="display: none;"></div>
+                        <div class="mt-2 text-start" id="voucher-info" style="display: none;"></div>
+                    </div>
+
+                </div>
+                <div class="col-md-12 mt-4">
+                    <div class="alert alert-info border">
+                        <div>Setiap kali pemberhentian di rute yang sama ditambahkan <strong>Rp2.000</strong> per
+                            lokasi.</div>
+                        <div>Setiap menunggu akan dikenakan <strong>Rp5.000 per 30 menit</strong>.</div>
+                        <div class="mt-1"><em>Biaya tambahan akan dihitung saat proses layanan atau sesuai kebijakan.</em>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <a id="order" class="btn btn-success mt-3">
-                <i class="fas fa-location-arrow"></i> Pesan Via Whatsapp
-            </a>
-        </div>
+                <a class="btn btn-success mt-3" id="order">
+                    <i class="fas fa-location-arrow"></i> Pesan Via Whatsapp
+                </a>
+            </div>
     </section>
 @endsection
 
@@ -185,9 +205,9 @@
                             // Display voucher info
                             $('#voucher-info').html(
                                 `<div class="alert alert-success">
-                        <strong>Voucher berhasil diaplikasikan!</strong><br>
-                        Diskon ${voucherDiscount}% dari ${response.data.nama}
-                    </div>`
+                                    <strong>Voucher berhasil diaplikasikan!</strong><br>
+                                    Diskon ${voucherDiscount}% dari ${response.data.nama}
+                                </div>`
                             ).show();
 
                             // Recalculate price with the discount
@@ -206,9 +226,9 @@
                         } else {
                             $('#voucher-info').html(
                                 `<div class="alert alert-danger">
-                        <strong>Voucher tidak valid!</strong><br>
+                                    <strong>Voucher tidak valid!</strong><br>
                         ${response.message}
-                    </div>`
+                                </div>`
                             ).show();
 
                             Swal.fire({
@@ -228,9 +248,9 @@
 
                         $('#voucher-info').html(
                             `<div class="alert alert-danger">
-                    <strong>Error!</strong><br>
-                    ${errorMessage}
-                </div>`
+                                <strong>Error!</strong><br>
+                                ${errorMessage}
+                            </div>`
                         ).show();
 
                         Swal.fire({
@@ -445,9 +465,9 @@
                     const basecampToDestinationDistance = distanceResults[0][1] ? distanceResults[0][1]
                         .distance.toFixed(2) : '0';
 
-                    const request = {
-                        origin: startPos,
-                        destination: endPos,
+                const request = {
+                    origin: startPos,
+                    destination: endPos,
                         travelMode: google.maps.TravelMode.DRIVING, // Motorcycle travel mode
                         avoidHighways: false, // Motorcycles prefer smaller roads
                         avoidTolls: false, // Motorcycles usually avoid tolls for cost efficiency
@@ -460,20 +480,20 @@
                             trafficModel: google.maps.TrafficModel
                                 .BEST_GUESS // Motorcycles can navigate through traffic better
                         }
-                    };
+                };
 
-                    directionsService.route(request, function(result, status) {
-                        if (status === 'OK') {
-                            directionsRenderer.setDirections(result);
+                directionsService.route(request, function(result, status) {
+                    if (status === 'OK') {
+                        directionsRenderer.setDirections(result);
 
-                            const route = result.routes[0];
-                            const routeDistance = (route.legs[0].distance.value / 1000).toFixed(2);
-                            const duration = Math.round(route.legs[0].duration.value / 60);
+                        const route = result.routes[0];
+                        const routeDistance = (route.legs[0].distance.value / 1000).toFixed(2);
+                        const duration = Math.round(route.legs[0].duration.value / 60);
 
-                            // Calculate return trip distance (destination to pickup) in background
-                            const returnRequest = {
-                                origin: endPos,
-                                destination: startPos,
+                        // Calculate return trip distance (destination to pickup) in background
+                        const returnRequest = {
+                            origin: endPos,
+                            destination: startPos,
                                 travelMode: google.maps.TravelMode
                                     .DRIVING, // Motorcycle travel mode
                                 avoidHighways: false, // Motorcycles prefer smaller roads
@@ -489,113 +509,113 @@
                                     trafficModel: google.maps.TrafficModel
                                         .BEST_GUESS // Motorcycles can navigate through traffic better
                                 }
-                            };
+                        };
 
                             directionsService.route(returnRequest, function(returnResult,
                                 returnStatus) {
                                 let returnDistance =
                                     routeDistance; // fallback to same distance
 
-                                if (returnStatus === 'OK') {
+                            if (returnStatus === 'OK') {
                                     returnDistance = (returnResult.routes[0].legs[0]
                                         .distance.value / 1000).toFixed(2);
-                                }
+                            }
 
-                                // Get rounded distance for display
+                            // Get rounded distance for display
                                 const roundedDistance = Math.ceil(parseFloat(
                                     routeDistance));
 
-                                // Calculate price using new flat rate pricing
-                                let calculatedPrice = roundedDistance * RATE_PER_KM;
+                            // Calculate price using new flat rate pricing
+                            let calculatedPrice = roundedDistance * RATE_PER_KM;
                                 let totalPrice = Math.max(calculatedPrice,
                                     MINIMUM_ORDER_PRICE);
-                                let priceInfo = '';
+                            let priceInfo = '';
 
-                                // Create appropriate price explanation based on whether minimum price is applied
-                                if (calculatedPrice < MINIMUM_ORDER_PRICE) {
-                                    priceInfo =
-                                        `Tarif: Rp${MINIMUM_ORDER_PRICE.toLocaleString()} (Tarif minimum)`;
-                                } else {
-                                    priceInfo =
-                                        `Tarif: Rp${totalPrice.toLocaleString()} (${roundedDistance} km × Rp${RATE_PER_KM.toLocaleString()}/km)`;
-                                }
+                            // Create appropriate price explanation based on whether minimum price is applied
+                            if (calculatedPrice < MINIMUM_ORDER_PRICE) {
+                                priceInfo =
+                                    `Tarif: Rp${MINIMUM_ORDER_PRICE.toLocaleString()} (Tarif minimum)`;
+                            } else {
+                                priceInfo =
+                                    `Tarif: Rp${totalPrice.toLocaleString()} (${roundedDistance} km × Rp${RATE_PER_KM.toLocaleString()}/km)`;
+                            }
 
-                                // Voucher discount info for display (calculation will be done by backend)
-                                let discountInfo = '';
-                                if (voucherDiscount > 0) {
+                            // Voucher discount info for display (calculation will be done by backend)
+                            let discountInfo = '';
+                            if (voucherDiscount > 0) {
                                     discountInfo =
                                         `<br>Diskon Voucher: ${voucherDiscount}%`;
-                                }
+                            }
 
-                                // Send both distances to the server including calculated return distance
-                                $.ajax({
-                                    url: `{{ route('ojek.show-pricing') }}`,
-                                    method: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
-                                        jarakBaseCampKeTitikJemput: Math.ceil(
-                                            basecampToPickupDistance),
+                            // Send both distances to the server including calculated return distance
+                            $.ajax({
+                                url: `{{ route('ojek.show-pricing') }}`,
+                                method: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    jarakBaseCampKeTitikJemput: Math.ceil(
+                                        basecampToPickupDistance),
                                         jarakTitikJemputKeTitikTujuan: Math.ceil(
                                             routeDistance),
-                                        jarakBaseCampKeTitikTujuan: Math.ceil(
-                                            basecampToDestinationDistance),
-                                        jarakTitikTujuanKeTitikJemput: Math.ceil(
-                                            returnDistance),
-                                        discount: appliedVoucherCode || null,
-                                    },
-                                    success: function(response) {
-                                        if (response.status === 'success') {
-                                            // Backend already calculated final price including discount
-                                            let finalPrice = response.harga;
+                                    jarakBaseCampKeTitikTujuan: Math.ceil(
+                                        basecampToDestinationDistance),
+                                    jarakTitikTujuanKeTitikJemput: Math.ceil(
+                                        returnDistance),
+                                    discount: appliedVoucherCode || null,
+                                },
+                                success: function(response) {
+                                    if (response.status === 'success') {
+                                        // Backend already calculated final price including discount
+                                        let finalPrice = response.harga;
 
-                                            // Format price with thousand separators for Rupiah
+                                        // Format price with thousand separators for Rupiah
                                             const formattedPrice = new Intl
                                                 .NumberFormat('id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR',
-                                                    minimumFractionDigits: 0,
-                                                    maximumFractionDigits: 0
-                                                }).format(finalPrice);
+                                                style: 'currency',
+                                                currency: 'IDR',
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0
+                                            }).format(finalPrice);
 
-                                            // Update the route info with the response data
-                                            $('#routeInfo').html(
+                                        // Update the route info with the response data
+                                        $('#routeInfo').html(
                                                 `Jarak Driver ke Titik Jemput: ${Math.ceil(
                                             basecampToPickupDistance)} km<br>
                                             Jarak Perjalanan: <span id="distance">${roundedDistance}</span> km<br>
                                             Estimasi waktu: <span id="duration">${duration}</span> menit<br>
-                                            
+                                        
                                             ${discountInfo}<br>
                                             Harga Total: <h1 id="totalPrice" class="text-success">${formattedPrice}</h1>`
-                                            ).show();
-                                        } else {
-                                            // Handle error response
-                                            $('#routeInfo').html(
-                                                `<div class="alert alert-danger">
-                                <strong>Error!</strong><br>
-                                Maaf, terjadi kesalahan, silahkan coba lagi.
-                            </div>`
-                                            ).show();
-                                        }
-                                    },
-                                    error: function(xhr) {
-                                        let errorMessage =
-                                            'Terjadi kesalahan saat menghitung harga';
+                                        ).show();
+                                    } else {
+                                        // Handle error response
+                                        $('#routeInfo').html(
+                                            `<div class="alert alert-danger">
+                                                <strong>Error!</strong><br>
+                                                Maaf, terjadi kesalahan, silahkan coba lagi.
+                                            </div>`
+                                        ).show();
+                                    }
+                                },
+                                error: function(xhr) {
+                                    let errorMessage =
+                                        'Terjadi kesalahan saat menghitung harga';
                                         if (xhr.responseJSON && xhr.responseJSON
                                             .message) {
                                             errorMessage = xhr.responseJSON
                                                 .message;
-                                        }
-
-                                        $('#routeInfo').html(
-                                            `<div class="alert alert-danger">
-                            <strong>Error!</strong><br>
-                            ${errorMessage}
-                        </div>`
-                                        ).show();
                                     }
-                                });
-                            }); // Close return distance calculation callback
-                        }
+
+                                    $('#routeInfo').html(
+                                        `<div class="alert alert-danger">
+                                            <strong>Error!</strong><br>
+                                            ${errorMessage}
+                                        </div>`
+                                    ).show();
+                                }
+                            });
+                        }); // Close return distance calculation callback
+                    }
                     });
                 }).catch((error) => {
                     console.error('Error calculating distances:', error);
@@ -636,11 +656,11 @@
 
                 // SVG marker for better visibility
                 const svgMarker = "data:image/svg+xml," + encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path fill="${markerColor}" 
-                    d="M12 2a8 8 0 0 0-7.992 8A12.816 12.816 0 0 0 12 22a12.816 12.816 0 0 0 7.988-12A8 8 0 0 0 12 2zm0 11a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"/>
-            </svg>
-        `);
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill="${markerColor}" 
+                            d="M12 2a8 8 0 0 0-7.992 8A12.816 12.816 0 0 0 12 22a12.816 12.816 0 0 0 7.988-12A8 8 0 0 0 12 2zm0 11a3 3 0 1 1 3-3 3 3 0 0 1-3 3z"/>
+                    </svg>
+                `);
 
                 const markerOptions = {
                     position: position,
@@ -755,24 +775,24 @@
                     const basecampToDestinationDistance = distanceResults[0][1] ?
                         distanceResults[0][1].distance.toFixed(2) : '0';
 
-                    // Validate both locations
-                    const isStartValid = await validateLocation(lat_awal, lng_awal);
-                    const isEndValid = await validateLocation(lat_akhir, lng_akhir);
+                // Validate both locations
+                const isStartValid = await validateLocation(lat_awal, lng_awal);
+                const isEndValid = await validateLocation(lat_akhir, lng_akhir);
 
-                    if (!isStartValid || !isEndValid) {
+                if (!isStartValid || !isEndValid) {
                         alert(
                             'Lokasi tidak valid. Pastikan menggunakan lokasi tepat dari Google Maps.'
                         );
-                        return;
-                    }
+                    return;
+                }
 
-                    // Calculate return distance for accurate pricing
-                    const startPos = new google.maps.LatLng(lat_awal, lng_awal);
-                    const endPos = new google.maps.LatLng(lat_akhir, lng_akhir);
+                // Calculate return distance for accurate pricing
+                const startPos = new google.maps.LatLng(lat_awal, lng_awal);
+                const endPos = new google.maps.LatLng(lat_akhir, lng_akhir);
 
-                    const returnRequest = {
-                        origin: endPos,
-                        destination: startPos,
+                const returnRequest = {
+                    origin: endPos,
+                    destination: startPos,
                         travelMode: google.maps.TravelMode
                             .DRIVING, // Motorcycle travel mode
                         avoidHighways: false, // Motorcycles prefer smaller roads
@@ -788,32 +808,32 @@
                             trafficModel: google.maps.TrafficModel
                                 .BEST_GUESS // Motorcycles can navigate through traffic better
                         }
-                    };
+                };
 
                     directionsService.route(returnRequest, function(returnResult,
                         returnStatus) {
-                        let returnDistance = parseFloat($('#distance')
-                            .text()); // fallback to forward distance
+                    let returnDistance = parseFloat($('#distance')
+                .text()); // fallback to forward distance
 
-                        if (returnStatus === 'OK') {
+                    if (returnStatus === 'OK') {
                             returnDistance = (returnResult.routes[0].legs[0]
                                 .distance.value / 1000).toFixed(2);
-                        }
+                    }
 
-                        Swal.fire({
-                            title: "Apakah anda yakin?",
-                            text: "Apakah anda yakin ingin memesan jasa ini?",
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Ya, pesan!",
-                            cancelButtonText: "Batal",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: `{{ route('ojek.pesan') }}`,
-                                    method: 'POST',
-                                    data: {
-                                        _token: '{{ csrf_token() }}',
+                    Swal.fire({
+                        title: "Apakah anda yakin?",
+                        text: "Apakah anda yakin ingin memesan jasa ini?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Ya, pesan!",
+                        cancelButtonText: "Batal",
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: `{{ route('ojek.pesan') }}`,
+                                method: 'POST',
+                                data: {
+                                    _token: '{{ csrf_token() }}',
                                         total_harga: parseInt(price
                                             .replace(/\D/g, '')
                                         ),
@@ -830,50 +850,62 @@
                                             ),
                                         jarakTitikTujuanKeTitikJemput: Math
                                             .ceil(returnDistance),
-                                        voucher: appliedVoucherCode,
+                                    voucher: appliedVoucherCode,
                                         titik_jemput: $(
                                                 '#lokasi_awal')
                                             .val(),
                                         titik_tujuan: $(
                                                 '#lokasi_akhir')
                                             .val(),
-                                    },
-                                    success: function(response) {
+                                },
+                                success: function(response) {
                                         if (response.status ===
                                             'success') {
-                                            Swal.fire({
-                                                title: 'Berhasil',
-                                                text: 'Pesanan berhasil dibuat, Anda akan diarahkan ke WhatsApp Admin',
-                                                icon: 'success'
-                                            }).then(() => {
-                                                const
-                                                    message =
-                                                    `Hii, saya baru saja memesan To Help untuk meminta bantuan\n\n- Ojek\nID Order : ${response.order_id}\nTitik Penjemputan : ${$('#lokasi_awal').val()}\nTitik Pengantaran : ${$('#lokasi_akhir').val()}\nHarga : ${$('#totalPrice').text()}`;
-                                                window
-                                                    .open(
-                                                        `https://api.whatsapp.com/send?phone=6285695908981&text=${encodeURIComponent(message)}`,
-                                                        '_blank'
-                                                    );
-                                            });
-                                        } else {
-                                            Swal.fire({
-                                                title: 'Gagal',
-                                                text: 'Pesanan gagal dibuat, silahkan coba lagi',
-                                                icon: 'error'
-                                            });
-                                        }
-                                    },
-                                    error: function() {
+                                        Swal.fire({
+                                            title: 'Berhasil',
+                                            text: 'Pesanan berhasil dibuat, Anda akan diarahkan ke WhatsApp Admin',
+                                            icon: 'success'
+                                        }).then(() => {
+                                            const paymentMethod = $(
+                                                '#metode_pembayaran'
+                                            ).val();
+                                            // Build WhatsApp message and include payment method information
+                                            const paymentText =
+                                                `Metode Pembayaran: ${paymentMethod}`;
+                                            const message =
+                                                `Hii, saya baru saja memesan To Help untuk meminta bantuan
+
+- Layanan: Ojek
+ID Order : ${response.order_id}
+Titik Penjemputan : ${$('#lokasi_awal').val()}
+Titik Pengantaran : ${$('#lokasi_akhir').val()}
+Harga : ${$('#totalPrice').text()}
+${paymentText}`
+
+                                            window.open(
+                                                `https://api.whatsapp.com/send?phone=6285695908981&text=${encodeURIComponent(message)}`,
+                                                '_blank'
+                                            );
+                                        });
+                                    } else {
                                         Swal.fire({
                                             title: 'Gagal',
                                             text: 'Pesanan gagal dibuat, silahkan coba lagi',
                                             icon: 'error'
                                         });
                                     }
-                                });
-                            }
-                        });
-                    }); // Close return distance calculation callback
+                                },
+                                error: function() {
+                                    Swal.fire({
+                                        title: 'Gagal',
+                                        text: 'Pesanan gagal dibuat, silahkan coba lagi',
+                                        icon: 'error'
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }); // Close return distance calculation callback
                 }).catch((error) => {
                     console.error('Error calculating distances for order:', error);
                     Swal.fire({
