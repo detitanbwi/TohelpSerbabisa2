@@ -153,6 +153,29 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Standard Operating Procedure</h5>
+                            <ol class="mb-4">
+                                <li>Helpman datang ke lokasi</li>
+                                <li>Setelah datang, helpman akan menghitung harga sesuai dengan paket yang dipilih</li>
+                                <li>Apabila harga yg disebutkan oleh helpman bisa diterima dengan baik, maka helpman akan melanjutkan tugasnya untuk bersih bersih sesuai dengan yg di tugaskan</li>
+                                <li>Apabila kurang berkenan dengan harganya, maka customer bisa request jobdesk dengan tarif menyesuaikan budget, atau helpman bisa pulang dan customer cukup membayar uang transport saja</li>
+                            </ol>
+
+                            <h6 class="fw-bold">Noted :</h6>
+                            <ol class="mb-0">
+                                <li>Untuk biaya transportasi free 3km dari lokasi basecamp, apabila diatas itu maka akan ada charge 2rb / km nya</li>
+                                <li>Lokasi Beskem bisa di cek via gmaps "To Help Jember"</li>
+                                <li>Peralatan dan sabun untuk bersih2 sudah dari kami</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 @endsection

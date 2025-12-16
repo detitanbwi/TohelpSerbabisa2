@@ -10,50 +10,72 @@
             </div>
 
             <div class="row g-4">
-                <div class="accordion mb-4" id="jasaNemeninFaq">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq1">
-                                🗣️ Min, kalau nemenin ngopi / nonton berapa harga nya?
-                            </button>
-                        </h2>
-                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#jasaNemeninFaq">
-                            <div class="accordion-body">
-                                Untuk nemenin ngopi tarifnya 15k/ jam kaa, dan akan ditambah biaya transport 2k/km jika
-                                jarak lokasi helpman ke lokasi ngopi lebih dari 3km
-                            </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Tarif Durasi</h5>
+                            <h2 class="card-text text-primary mb-4">15k/jam</h2>
                         </div>
                     </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq2">
-                                🗣️ Kalo helpmannya jemput aku dulu gimana min, lalu mampir2 beli sesuatu?
-                            </button>
-                        </h2>
-                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#jasaNemeninFaq">
-                            <div class="accordion-body">
-                                Untuk hitungan tarif akan dihitung sesuai jarak tempuh 2k/km, namun tarif tersebut akan
-                                batal jika besok memakai kendaraan dari customer. Lalu ditambah dengan jasa durasi 15k/jam,
-                                terhitung semenjak berhenti di tempat tertentu
-                            </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Paket Setengah Hari</h5>
+                            <h2 class="card-text text-primary mb-3">100k</h2>
+                            <p class="card-text mb-0">
+                                Durasi: 7 jam
+                            </p>
                         </div>
                     </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#faq3">
-                                🗣️ Kalo mampirnya ga sampek sejam gimana min?
-                            </button>
-                        </h2>
-                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#jasaNemeninFaq">
-                            <div class="accordion-body">
-                                Kalo ga sampek sejam akan dikalkulasikan dengan pemberhentian selanjutnya. Tapi kalo
-                                pemberhentiannya cuman 1 dan ga sampek 1 jam maka ada jasa durasi dibawah itu sebesar 5k
-                                untuk 5 - 30 menit, dan 10k untuk 45 menit. Dan total durasi pemberhentian akan
-                                dikalkulasikan di akhir
-                            </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Paket Satu Hari</h5>
+                            <h2 class="card-text text-primary mb-3">150k</h2>
+                            <p class="card-text mb-0">
+                                Durasi: 14 jam
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Paket Full Time</h5>
+                            <h2 class="card-text text-primary mb-3">250k</h2>
+                            <p class="card-text mb-0">
+                                Durasi: 24 jam
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Transport</h5>
+                            <h2 class="card-text text-primary mb-3">2k/km</h2>
+                            <p class="card-text mb-0">
+                                (tidak berlaku jika kendaraan dari customer)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">NB :</h5>
+                            <ol class="mb-0">
+                                <li>point 1 dan point 5 dihitung bergantian (tidak beriringan)</li>
+                                <li>Semua biaya di atas belum include biaya akomodasi tiket, parkir, konsumsi, dan penginapan jika di perlukan</li>
+                                <li>Paket full time berlaku hanya ketika dalam nemenin yang mengharuskan stanby 24 jam</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
