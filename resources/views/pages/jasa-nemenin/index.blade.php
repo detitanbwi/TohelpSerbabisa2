@@ -3,7 +3,7 @@
 @section('content')
     <section class="padding-small">
         <div class="container">
-            <div class="text-center mb-5">
+            <div class="mb-5 text-center">
                 <h2 class="display-4 fw-bold">Jasa Nemenin</h2>
                 <p class="lead">Layanan menemani aktivitas Anda seperti ngopi, nonton, atau kegiatan lainnya dengan tarif
                     terjangkau dan nyaman.</p>
@@ -72,8 +72,9 @@
                         <div class="card-body">
                             <h5 class="card-title mb-3">NB :</h5>
                             <ol class="mb-0">
-                                <li>point 1 dan point 5 dihitung bergantian (tidak beriringan)</li>
-                                <li>Semua biaya di atas belum include biaya akomodasi tiket, parkir, konsumsi, dan penginapan jika di perlukan</li>
+                                <li>Tarif durasi dan Transport dihitung bergantian atau tidak beriringan</li>
+                                <li>Semua biaya di atas belum include biaya akomodasi tiket, parkir, konsumsi, dan
+                                    penginapan jika di perlukan</li>
                                 <li>Paket full time berlaku hanya ketika dalam nemenin yang mengharuskan stanby 24 jam</li>
                             </ol>
                         </div>
@@ -81,11 +82,10 @@
                 </div>
 
                 <div class="text-center">
-                    <a href="#" class="btn btn-success w-100 order-btn" data-service="Nemenin" data-price="15.000">
+                    <a class="btn btn-success w-100 order-btn" data-service="Nemenin" data-price="15.000" href="#">
                         <i class="fab fa-whatsapp"></i> Pesan Sekarang
                     </a>
                 </div>
-
 
             </div>
         </div>
