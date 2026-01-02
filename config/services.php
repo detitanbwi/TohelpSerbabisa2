@@ -34,5 +34,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'google_maps' => [
+        'api_key' => env('GMAP_API_KEY'),
+    ],
+    'location' => [
+        'basecamp_lat' => env('BASECAMP_LAT'),
+        'basecamp_long' => env('BASECAMP_LONG'),
+    ],
 
 ];
