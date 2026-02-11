@@ -98,9 +98,9 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">Halaman</h5>
-                            <h2 class="card-text text-primary mb-4">Rp 4.000/m²</h2>
+                            <h2 class="card-text text-primary mb-4">Rp 5.000/m²</h2>
                             <a href="#" class="btn btn-success w-100 order-btn" data-service="Halaman"
-                                data-price="4.000/m²">
+                                data-price="5.000/m²">
                                 <i class="fab fa-whatsapp"></i> Pesan Sekarang
                             </a>
                         </div>
