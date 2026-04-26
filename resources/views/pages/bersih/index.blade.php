@@ -86,8 +86,7 @@
                         <div class="card-body">
                             <h5 class="card-title">Dapur</h5>
                             <h2 class="card-text text-primary mb-4">Rp 5.000/m²</h2>
-                            <a href="#" class="btn btn-success w-100 order-btn" data-service="Dapur"
-                                data-price="5.000/m²">
+                            <a href="#" class="btn btn-success w-100 order-btn" data-service="Dapur" data-price="5.000/m²">
                                 <i class="fab fa-whatsapp"></i> Pesan Sekarang
                             </a>
                         </div>
@@ -111,7 +110,7 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">Kamar Mandi (Kecil)</h5>
-                            <h2 class="card-text text-primary mb-4">Rp 35.000</h2>
+                            <h2 class="card-text text-primary mb-4">Rp 50.000</h2>
                             <a href="#" class="btn btn-success w-100 order-btn" data-service="Kamar Mandi Kecil"
                                 data-price="35.000">
                                 <i class="fab fa-whatsapp"></i> Pesan Sekarang
@@ -124,7 +123,7 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">Kamar Mandi (Besar)</h5>
-                            <h2 class="card-text text-primary mb-4">Rp 50.000</h2>
+                            <h2 class="card-text text-primary mb-4">Rp 75.000</h2>
                             <a href="#" class="btn btn-success w-100 order-btn" data-service="Kamar Mandi Besar"
                                 data-price="50.000">
                                 <i class="fab fa-whatsapp"></i> Pesan Sekarang
@@ -145,8 +144,7 @@
                                 - 5.700L (125k)<br>
                                 - 10.500L (175k)<br>
                             </p>
-                            <a href="#" class="btn btn-success w-100 order-btn" data-service="Tandon"
-                                data-price="170.000">
+                            <a href="#" class="btn btn-success w-100 order-btn" data-service="Tandon" data-price="170.000">
                                 <i class="fab fa-whatsapp"></i> Pesan Sekarang
                             </a>
                         </div>
@@ -162,13 +160,17 @@
                             <ol class="mb-4">
                                 <li>Helpman datang ke lokasi</li>
                                 <li>Setelah datang, helpman akan menghitung harga sesuai dengan paket yang dipilih</li>
-                                <li>Apabila harga yg disebutkan oleh helpman bisa diterima dengan baik, maka helpman akan melanjutkan tugasnya untuk bersih bersih sesuai dengan yg di tugaskan</li>
-                                <li>Apabila kurang berkenan dengan harganya, maka customer bisa request jobdesk dengan tarif menyesuaikan budget, atau helpman bisa pulang dan customer cukup membayar uang transport saja</li>
+                                <li>Apabila harga yg disebutkan oleh helpman bisa diterima dengan baik, maka helpman akan
+                                    melanjutkan tugasnya untuk bersih bersih sesuai dengan yg di tugaskan</li>
+                                <li>Apabila kurang berkenan dengan harganya, maka customer bisa request jobdesk dengan tarif
+                                    menyesuaikan budget, atau helpman bisa pulang dan customer cukup membayar uang transport
+                                    saja</li>
                             </ol>
 
                             <h6 class="fw-bold">Noted :</h6>
                             <ol class="mb-0">
-                                <li>Untuk biaya transportasi free 3km dari lokasi basecamp, apabila diatas itu maka akan ada charge 2rb / km nya</li>
+                                <li>Untuk biaya transportasi free 3km dari lokasi basecamp, apabila diatas itu maka akan ada
+                                    charge 2rb / km nya</li>
                                 <li>Lokasi Beskem bisa di cek via gmaps "To Help Jember"</li>
                                 <li>Peralatan dan sabun untuk bersih2 sudah dari kami</li>
                             </ol>
@@ -182,8 +184,8 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function() {
-            $('.order-btn').click(function(e) {
+        $(document).ready(function () {
+            $('.order-btn').click(function (e) {
                 e.preventDefault();
 
                 const service = $(this).data('service');
@@ -213,7 +215,7 @@
                             url: `{{ route('bersih.pesan') }}`,
                             method: 'POST',
                             data: data,
-                            success: function(response) {
+                            success: function (response) {
                                 if (response.status === 'success') {
                                     Swal.fire({
                                         title: 'Berhasil',
@@ -248,7 +250,7 @@
                                     });
                                 }
                             },
-                            error: function() {
+                            error: function () {
                                 Swal.fire({
                                     title: 'Gagal',
                                     text: 'Pesanan gagal dibuat, silahkan coba lagi',
